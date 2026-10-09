@@ -1,29 +1,119 @@
 <!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#245b43"><link rel="manifest" href="./manifest.json"><link rel="apple-touch-icon" href="./icon-192.png"><title>フリマ収支</title>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#245b43">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<title>フリマ収支</title>
 <style>
-*{box-sizing:border-box}body{margin:0;background:#f3f5f3;color:#17221c;font-family:-apple-system,BlinkMacSystemFont,sans-serif}header{background:#245b43;color:white;padding:22px 18px;border-radius:0 0 22px 22px}main{max-width:680px;margin:auto;padding:16px}h1{margin:0;font-size:23px}p,.note{font-size:12px;color:#6e786f;line-height:1.6}.total,form,.panel{background:white;border-radius:17px;padding:17px;margin-bottom:15px;box-shadow:0 4px 16px #0000000a}.eyebrow{font-size:12px;color:#6e786f}.totalnum{font-size:34px;font-weight:800;margin:5px 0}.negative{color:#b42318!important}h2{font-size:17px;margin:0 0 10px}label{display:block;font-size:13px;font-weight:650;margin:12px 0 6px}input{width:100%;font-size:16px;padding:12px;border:1px solid #e1e6e1;border-radius:11px;background:#fbfcfb}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.preview{background:#eef5ef;border-radius:12px;padding:13px;margin-top:15px;display:flex;justify-content:space-between;align-items:center;font-size:13px}.preview strong{font-size:21px;color:#18794e}.primary{width:100%;background:#245b43;color:white;border:0;border-radius:12px;padding:14px;font-weight:700;margin-top:14px}.item{border-top:1px solid #e1e6e1;padding:13px 0}.top{display:flex;justify-content:space-between;gap:10px;font-weight:700}.profit{white-space:nowrap;color:#18794e}.details{font-size:12px;color:#6e786f;line-height:1.8;margin-top:5px}.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}.delete,.edit{border:0;background:none;padding:6px 8px}.delete{color:#b42318}.edit{color:#1769aa}.empty{text-align:center;color:#6e786f;padding:24px 4px;font-size:13px}.head{display:flex;justify-content:space-between;align-items:center}.secondary{border:1px solid #ddd;background:white;border-radius:9px;padding:8px 10px}.cancel{display:none;width:100%;margin-top:8px;border:1px solid #ddd;background:white;border-radius:12px;padding:12px;font-weight:650}
-</style></head><body><header><h1>フリマ収支</h1><p style="color:#dbe9df;margin-bottom:0">商品ごとの利益と利益合計を管理</p></header><main>
-<div class="total"><div class="eyebrow">利益合計</div><div class="totalnum" id="total">¥0</div><div class="eyebrow" id="count">登録商品 0件</div></div>
-<form id="form"><h2 id="formTitle">商品を登録</h2><label for="name">商品名</label><input id="name" maxlength="120" placeholder="例：スニーカー" list="nameSuggestions" required autocomplete="off"><datalist id="nameSuggestions"></datalist>
-<div class="grid"><div><label for="purchase">購入額（円）</label><input id="purchase" type="number" min="0" step="1" inputmode="numeric" placeholder="0" required></div><div><label for="fee">手数料（円）</label><input id="fee" type="number" min="0" step="1" inputmode="numeric" placeholder="0" required></div><div><label for="shipping">送料（円）</label><input id="shipping" type="number" min="0" step="1" inputmode="numeric" placeholder="0" required></div><div><label for="sale">売上額（円）</label><input id="sale" type="number" min="0" step="1" inputmode="numeric" placeholder="0" required></div></div>
-<div class="preview"><span>この商品の利益</span><strong id="preview">¥0</strong></div><button class="primary" id="submitButton">商品を登録</button><button class="cancel" id="cancelEdit" type="button">編集をキャンセル</button><div class="note">利益＝売上額 − 購入額 − 手数料 − 送料</div></form>
-<div class="panel"><div class="head"><h2>登録した商品</h2><button class="secondary" id="csv" type="button">CSV出力</button></div><div id="items"><div class="empty">まだ商品がありません。</div></div><div class="note">データはこの端末・ブラウザ内に保存されます。端末変更やデータ削除に備え、CSVでバックアップしてください。</div></div>
-</main><script>
-const KEY='fleaProfitPwa_v1',$=id=>document.getElementById(id),yen=n=>'¥'+Number(n||0).toLocaleString('ja-JP'),num=id=>Math.max(0,Math.floor(Number($(id).value)||0));let data=[],editingId=null;
+*{box-sizing:border-box}
+body{margin:0;background:#f3f5f3;color:#17221c;font-family:-apple-system,BlinkMacSystemFont,sans-serif}
+header{background:#245b43;color:white;padding:20px 18px;border-radius:0 0 22px 22px}
+.headerrow{display:flex;justify-content:space-between;align-items:center;gap:12px}
+h1{margin:0;font-size:23px}
+main{max-width:680px;margin:auto;padding:16px 16px 92px}
+p,.note{font-size:12px;color:#6e786f;line-height:1.6}
+.total,form,.panel{background:white;border-radius:17px;padding:17px;margin-bottom:15px;box-shadow:0 4px 16px #0000000a}
+.eyebrow{font-size:12px;color:#6e786f}
+.totalnum{font-size:34px;font-weight:800;margin:5px 0}
+.negative{color:#b42318!important}
+h2{font-size:17px;margin:0 0 10px}
+label{display:block;font-size:13px;font-weight:650;margin:12px 0 6px}
+input{width:100%;font-size:16px;padding:12px;border:1px solid #e1e6e1;border-radius:11px;background:#fbfcfb}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.preview{background:#eef5ef;border-radius:12px;padding:13px;margin-top:15px;display:flex;justify-content:space-between;align-items:center;font-size:13px}
+.preview strong{font-size:21px;color:#18794e}
+.primary{width:100%;background:#245b43;color:white;border:0;border-radius:12px;padding:14px;font-weight:700;margin-top:14px}
+.item{border-top:1px solid #e1e6e1;padding:13px 0}
+.top{display:flex;justify-content:space-between;gap:10px;font-weight:700}
+.profit{white-space:nowrap;color:#18794e}
+.details{font-size:12px;color:#6e786f;line-height:1.8;margin-top:5px}
+.actions{display:flex;justify-content:flex-end;gap:8px;margin-top:8px}
+.delete,.edit{border:0;background:none;padding:6px 8px}
+.delete{color:#b42318}.edit{color:#1769aa}
+.empty{text-align:center;color:#6e786f;padding:28px 4px;font-size:13px}
+.head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.secondary{border:1px solid #ddd;background:white;border-radius:9px;padding:8px 10px}
+.iconbtn{border:0;background:#fff;color:#245b43;border-radius:50%;width:44px;height:44px;font-size:30px;line-height:1;font-weight:500;box-shadow:0 3px 12px #0002}
+.cancel{display:none;width:100%;margin-top:8px;border:1px solid #ddd;background:white;border-radius:12px;padding:12px;font-weight:650}
+#formView{display:none}
+</style>
+</head>
+<body>
+<header>
+  <div class="headerrow">
+    <div><h1>フリマ収支</h1><p style="color:#dbe9df;margin:5px 0 0">商品ごとの利益をかんたん管理</p></div>
+    <button class="iconbtn" id="addButton" type="button" aria-label="商品を追加">＋</button>
+  </div>
+</header>
+<main>
+  <section id="homeView">
+    <div class="total"><div class="eyebrow">利益合計</div><div class="totalnum" id="total">¥0</div><div class="eyebrow" id="count">登録商品 0件</div></div>
+    <div class="panel">
+      <div class="head"><h2>登録した商品</h2><button class="secondary" id="csv" type="button">CSV出力</button></div>
+      <div id="items"><div class="empty">まだ商品がありません。右上の＋から登録できます。</div></div>
+      <div class="note">データはこの端末・ブラウザ内に保存されます。端末変更やデータ削除に備え、CSVでバックアップしてください。</div>
+    </div>
+  </section>
+  <section id="formView">
+    <form id="form">
+      <div class="head"><h2 id="formTitle">商品を登録</h2><button class="secondary" id="backButton" type="button">戻る</button></div>
+      <label for="name">商品名</label>
+      <input id="name" maxlength="120" placeholder="例：スニーカー" list="nameSuggestions" required autocomplete="off">
+      <datalist id="nameSuggestions"></datalist>
+      <div class="grid">
+        <div><label for="purchase">購入額（円）</label><input id="purchase" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></div>
+        <div><label for="fee">手数料（円）</label><input id="fee" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></div>
+        <div><label for="shipping">送料（円）</label><input id="shipping" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></div>
+        <div><label for="sale">売上額（円）</label><input id="sale" type="number" min="0" step="1" inputmode="numeric" placeholder="0"></div>
+      </div>
+      <div class="preview"><span>この商品の利益</span><strong id="preview">¥0</strong></div>
+      <button class="primary" id="submitButton" type="submit">商品を登録</button>
+      <button class="cancel" id="cancelEdit" type="button">編集をキャンセル</button>
+      <div class="note">利益＝売上額 − 購入額 − 手数料 − 送料。空欄の金額は登録時に0円として保存します。</div>
+    </form>
+  </section>
+</main>
+<script>
+const KEY='fleaProfitPwa_v1',$=id=>document.getElementById(id),yen=n=>'¥'+Number(n||0).toLocaleString('ja-JP'),num=id=>Math.max(0,Math.floor(Number($(id).value)||0));
+let data=[],editingId=null;
 try{data=JSON.parse(localStorage.getItem(KEY)||'[]');if(!Array.isArray(data))data=[]}catch(e){data=[]}
 function profit(x){return x.sale-x.purchase-x.fee-x.shipping}
 function preview(){let p=profit({sale:num('sale'),purchase:num('purchase'),fee:num('fee'),shipping:num('shipping')});$('preview').textContent=yen(p);$('preview').classList.toggle('negative',p<0)}
 ['sale','purchase','fee','shipping'].forEach(id=>$(id).addEventListener('input',preview));
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function render(){let total=data.reduce((s,x)=>s+profit(x),0);$('total').textContent=yen(total);$('total').classList.toggle('negative',total<0);$('count').textContent='登録商品 '+data.length+'件';
-$('items').innerHTML=data.length?data.map(x=>{let p=profit(x);return `<div class="item"><div class="top"><span>${esc(x.name)}</span><span class="profit ${p<0?'negative':''}">${yen(p)}</span></div><div class="details">売上 ${yen(x.sale)} ・ 購入 ${yen(x.purchase)}<br>手数料 ${yen(x.fee)} ・ 送料 ${yen(x.shipping)}</div><div class="actions"><button class="edit" type="button" data-edit="${esc(x.id)}">編集</button><button class="delete" type="button" data-delete="${esc(x.id)}">削除</button></div></div>`}).join(''):'<div class="empty">まだ商品がありません。上のフォームから登録してね。</div>';
-let names=[...new Set(data.map(x=>String(x.name||'').trim()).filter(Boolean))];$('nameSuggestions').innerHTML=names.map(n=>`<option value="${esc(n)}"></option>`).join('')}
+function render(){
+ let total=data.reduce((s,x)=>s+profit(x),0);
+ $('total').textContent=yen(total);$('total').classList.toggle('negative',total<0);$('count').textContent='登録商品 '+data.length+'件';
+ $('items').innerHTML=data.length?data.map(x=>{let p=profit(x);return `<div class="item"><div class="top"><span>${esc(x.name)}</span><span class="profit ${p<0?'negative':''}">${yen(p)}</span></div><div class="details">売上 ${yen(x.sale)} ・ 購入 ${yen(x.purchase)}<br>手数料 ${yen(x.fee)} ・ 送料 ${yen(x.shipping)}</div><div class="actions"><button class="edit" type="button" data-edit="${esc(x.id)}">編集</button><button class="delete" type="button" data-delete="${esc(x.id)}">削除</button></div></div>`}).join(''):'<div class="empty">まだ商品がありません。右上の＋から登録できます。</div>';
+ let names=[...new Set(data.map(x=>String(x.name||'').trim()).filter(Boolean))];
+ $('nameSuggestions').innerHTML=names.map(n=>`<option value="${esc(n)}"></option>`).join('');
+}
 function save(){localStorage.setItem(KEY,JSON.stringify(data));render()}
+function showForm(){ $('homeView').style.display='none';$('formView').style.display='block';window.scrollTo({top:0,behavior:'smooth'});$('name').focus()}
+function showHome(){ $('formView').style.display='none';$('homeView').style.display='block';window.scrollTo({top:0,behavior:'smooth'})}
 function resetForm(){editingId=null;$('form').reset();$('formTitle').textContent='商品を登録';$('submitButton').textContent='商品を登録';$('cancelEdit').style.display='none';preview()}
-$('form').addEventListener('submit',e=>{e.preventDefault();let item={name:$('name').value.trim(),purchase:num('purchase'),fee:num('fee'),shipping:num('shipping'),sale:num('sale')};if(!item.name){$('name').focus();return}
-if(editingId){let i=data.findIndex(x=>x.id===editingId);if(i!==-1)data[i]={...data[i],...item}}else data.unshift({id:Date.now().toString()+Math.random().toString(16).slice(2),...item});save();resetForm();$('name').focus()});
-$('cancelEdit').addEventListener('click',resetForm);
-$('items').addEventListener('click',e=>{let edit=e.target.closest('[data-edit]'),del=e.target.closest('[data-delete]');if(edit){let x=data.find(v=>v.id===edit.dataset.edit);if(!x)return;editingId=x.id;$('name').value=x.name;$('purchase').value=x.purchase;$('fee').value=x.fee;$('shipping').value=x.shipping;$('sale').value=x.sale;$('formTitle').textContent='商品を編集';$('submitButton').textContent='変更を保存';$('cancelEdit').style.display='block';preview();window.scrollTo({top:0,behavior:'smooth'});$('name').focus()}else if(del&&confirm('この商品を削除しますか？')){if(editingId===del.dataset.delete)resetForm();data=data.filter(x=>x.id!==del.dataset.delete);save()}});
+$('addButton').addEventListener('click',()=>{resetForm();showForm()});
+$('backButton').addEventListener('click',()=>{resetForm();showHome()});
+$('cancelEdit').addEventListener('click',()=>{resetForm();showHome()});
+$('form').addEventListener('submit',e=>{
+ e.preventDefault();
+ let item={name:$('name').value.trim(),purchase:num('purchase'),fee:num('fee'),shipping:num('shipping'),sale:num('sale')};
+ if(!item.name){$('name').focus();return}
+ if(editingId){let i=data.findIndex(x=>x.id===editingId);if(i!==-1)data[i]={...data[i],...item}}
+ else data.unshift({id:Date.now().toString()+Math.random().toString(16).slice(2),...item});
+ save();resetForm();showHome();
+});
+$('items').addEventListener('click',e=>{
+ let edit=e.target.closest('[data-edit]'),del=e.target.closest('[data-delete]');
+ if(edit){let x=data.find(v=>v.id===edit.dataset.edit);if(!x)return;editingId=x.id;$('name').value=x.name;$('purchase').value=x.purchase;$('fee').value=x.fee;$('shipping').value=x.shipping;$('sale').value=x.sale;$('formTitle').textContent='商品を編集';$('submitButton').textContent='変更を保存';$('cancelEdit').style.display='block';preview();showForm()}
+ else if(del&&confirm('この商品を削除しますか？')){if(editingId===del.dataset.delete)resetForm();data=data.filter(x=>x.id!==del.dataset.delete);save()}
+});
 $('csv').addEventListener('click',()=>{if(!data.length){alert('出力するデータがありません');return}let rows=[['商品名','購入額','手数料','送料','売上額','利益'],...data.map(x=>[x.name,x.purchase,x.fee,x.shipping,x.sale,profit(x)])],csv='\uFEFF'+rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\r\n'),a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='フリマ収支.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});
-if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));preview();render();
-</script></body></html>
+if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+preview();render();
+</script>
+</body>
+</html>
