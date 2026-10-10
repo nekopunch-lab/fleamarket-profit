@@ -78,8 +78,8 @@ const palettes={
   mono:{name:'モノトーン',vars:['#55585c','#34373a','#f2f2f2','#d9d9d9','#222222','#777777','#ffffff','#e7e7e7']}
 };
 const paletteKey='fleaProfitPalette_v1';
-function applyPalette(key){let p=palettes[key]||palettes.brown,root=document.documentElement.style;['--brown','--brown-dark','--cream','--line','--text','--muted','--card','--soft'].forEach((v,i)=>root.setProperty(v,p.vars[i]));root.setProperty('--accent',p.vars[0]);document.querySelector('meta[name="theme-color"]').content=p.vars[0];localStorage.setItem(paletteKey,key);renderPaletteChoices()}
-function renderPaletteChoices(){let current=localStorage.getItem(paletteKey)||'brown';let grid=$('paletteGrid');if(!grid)return;grid.innerHTML=Object.entries(palettes).map(([key,p])=>`<button type="button" class="paletteChoice ${key===current?'active':''}" data-palette="${key}"><span class="swatches">${p.vars.slice(0,4).map(c=>`<i style="background:${c}"></i>`).join('')}</span><span>${p.name}${key===current?' ✓':''}</span></button>`).join('')}
+function applyPalette(key){let p=palettes[key]||palettes.green,root=document.documentElement.style;['--brown','--brown-dark','--cream','--line','--text','--muted','--card','--soft'].forEach((v,i)=>root.setProperty(v,p.vars[i]));root.setProperty('--accent',p.vars[0]);document.querySelector('meta[name="theme-color"]').content=p.vars[0];localStorage.setItem(paletteKey,key);renderPaletteChoices()}
+function renderPaletteChoices(){let current=localStorage.getItem(paletteKey)||'green';let grid=$('paletteGrid');if(!grid)return;grid.innerHTML=Object.entries(palettes).map(([key,p])=>`<button type="button" class="paletteChoice ${key===current?'active':''}" data-palette="${key}"><span class="swatches">${p.vars.slice(0,4).map(c=>`<i style="background:${c}"></i>`).join('')}</span><span>${p.name}${key===current?' ✓':''}</span></button>`).join('')}
 
 try{data=JSON.parse(localStorage.getItem(KEY)||'[]');if(!Array.isArray(data))data=[]}catch(e){data=[]}
 try{groups=JSON.parse(localStorage.getItem(GROUPKEY)||'[]');if(!Array.isArray(groups))groups=[]}catch(e){groups=[]}
@@ -132,7 +132,7 @@ $('copyLast').addEventListener('click',()=>{let last=data[0];if(!last){alert('�
 $('jsonExport').addEventListener('click',()=>{let payload={format:'fleaProfitBackup',version:1,exportedAt:new Date().toISOString(),data,groups};let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:'application/json'}));a.download='フリマ収支_全データバックアップ.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)});
 $('jsonFile').addEventListener('change',async e=>{let f=e.target.files[0];if(!f)return;try{let obj=JSON.parse(await f.text());if(!obj||obj.format!=='fleaProfitBackup'||!Array.isArray(obj.data)||!Array.isArray(obj.groups))throw Error('このアプリのバックアップファイルではありません');if(!confirm('現在のデータをバックアップ内のデータで置き換えます。先に現在のデータも保存しましたか？'))return;data=obj.data.map((x,i)=>({...x,id:String(x.id??('restore-'+i)),group:String(x.group||'')==='未分類'?'':String(x.group||''),date:String(x.date||''),memo:String(x.memo||'')}));groups=[...new Set(obj.groups.filter(g=>g&&g!=='未分類'))];data.forEach(x=>{if(x.group&&!groups.includes(x.group))groups.push(x.group)});activeGroup='__all__';persist();renderReport();alert('全データを復元しました')}catch(err){alert('復元できませんでした：'+err.message)}finally{e.target.value=''}});
 
-applyPalette(localStorage.getItem(paletteKey)||'brown');render();preview();renderReport();
+const savedPalette=localStorage.getItem(paletteKey);applyPalette(!savedPalette||savedPalette==='brown'?'green':savedPalette);render();preview();renderReport();
 if('serviceWorker'in navigator&&location.protocol.startsWith('http'))addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 </script>
 </body></html>
