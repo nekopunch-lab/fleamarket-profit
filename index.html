@@ -18,7 +18,7 @@ input,textarea,select{width:100%;font:inherit;font-size:16px;padding:11px;border
 .primary,.tabbtn,.secondary,.edit,.delete,.groupManage{cursor:pointer;font:inherit;font-weight:700;border-radius:10px}
 .primary{width:100%;background:var(--brown);color:white;border:0;padding:13px;margin-top:13px}.primary:active,.tabbtn:active{opacity:.8}
 .iconbtn{border:0;background:#fffaf5;color:var(--brown);border-radius:50%;width:42px;height:42px;font-size:29px;line-height:1;box-shadow:0 3px 10px #0002}
-.head{display:flex;justify-content:space-between;align-items:center;gap:8px}.secondary,.groupManage{border:1px solid var(--line);background:#fffaf5;color:var(--brown-dark);padding:8px 10px;font-size:12px}
+.head{display:flex;justify-content:space-between;align-items:center;gap:8px}.panel > .head{margin-bottom:12px}.secondary,.groupManage{border:1px solid var(--line);background:#fffaf5;color:var(--brown-dark);padding:8px 10px;font-size:12px}
 .item{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 8px;align-items:center;border:1px solid var(--line);border-radius:11px;padding:9px 10px;margin-top:7px;background:#fffefa}
 .top{display:flex;justify-content:space-between;align-items:center;gap:8px;font-weight:700;min-width:0}.top span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.profit{white-space:nowrap;color:#5b7650;font-size:13px}
 .details{grid-column:1/2;font-size:11px;color:var(--muted);line-height:1.5;margin:0;overflow-wrap:anywhere}.actions{grid-column:2;grid-row:1/span 2;display:flex;flex-direction:column;justify-content:center;gap:4px}
@@ -66,7 +66,7 @@ input,textarea,select{width:100%;font:inherit;font-size:16px;padding:11px;border
   <div class="panel" id="groupPanel" style="display:none"><div class="head"><h2>グループ管理</h2><button class="secondary" id="closeGroupPanel" type="button">閉じる</button></div><div class="groupRow"><input id="newGroup" maxlength="40" placeholder="新しいグループ名"><button class="primary" id="addGroup" type="button" style="width:auto;margin:0;padding:10px 12px">追加</button></div><div id="groupList"></div><p class="hint">グループを削除すると、そのグループの商品は「グループなし」になります。</p></div>
 </section>
 </main>
-<nav class="bottomnav" aria-label="メインタブ"><button id="homeTab" class="active" type="button"><span class="navicon">⌂</span>商品</button><button id="reportTab" type="button"><span class="navicon">▥</span>収支レポート</button><button id="otherTab" type="button"><span class="navicon">☰</span>その他</button></nav>
+<nav class="bottomnav" aria-label="メインタブ"><button id="homeTab" class="active" type="button"><span class="navicon">⌂</span>ホーム</button><button id="reportTab" type="button"><span class="navicon">▥</span>収支レポート</button><button id="otherTab" type="button"><span class="navicon">☰</span>その他</button></nav>
 <script>
 const KEY='fleaProfitPwa_v1', GROUPKEY='fleaProfitGroups_v1', $=id=>document.getElementById(id), yen=n=>'¥'+Number(n||0).toLocaleString('ja-JP'), num=id=>Math.max(0,Math.floor(Number($(id).value)||0));
 let data=[],groups=[],editingId=null,activeGroup='__all__',returnView='home';
