@@ -100,7 +100,7 @@ function renderTabs(){
  let tabs=[['__all__','すべて'],...groups.map(g=>[g,g]),['__none__','グループなし']];
  $('groupTabs').innerHTML=tabs.map(([id,label])=>`<button class="tabbtn ${activeGroup===id?'active':''}" type="button" data-group-tab="${esc(id)}">${esc(label)}</button>`).join('');
  $('groupTabs').querySelectorAll('[data-group-tab]').forEach(b=>b.addEventListener('click',()=>{activeGroup=b.dataset.groupTab;render()}));
- $('homeTab').innerHTML=`<span class="navicon">⌂</span>商品`;$('homeTab').classList.add('active');$('reportTab').classList.remove('active');$('otherTab').classList.remove('active');
+ $('homeTab').innerHTML=`<span class="navicon">⌂</span>ホーム`;$('homeTab').classList.add('active');$('reportTab').classList.remove('active');$('otherTab').classList.remove('active');
 }
 function render(){renderAmountSuggestions();
  renderTabs();let list=selectedData();const q=($('searchItems')?.value||'').trim().toLowerCase(),sort=$('sortItems')?.value||'new';list=list.filter(x=>!q||x.name.toLowerCase().includes(q)||(x.memo||'').toLowerCase().includes(q));if(sort==='dateDesc')list.sort((a,b)=>(b.date||'').localeCompare(a.date||''));else if(sort==='profitDesc')list.sort((a,b)=>profit(b)-profit(a));else if(sort==='profitAsc')list.sort((a,b)=>profit(a)-profit(b));else if(sort==='name')list.sort((a,b)=>a.name.localeCompare(b.name,'ja'));let sales=list.reduce((s,x)=>s+x.sale,0),costs=list.reduce((s,x)=>s+x.purchase+x.fee+x.shipping,0),total=list.reduce((s,x)=>s+profit(x),0);
